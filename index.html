@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض مهند</title>
+    <title>نظام معرض مهند المحاسبي | النسخة المطورة والملكية</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -238,10 +238,8 @@
             <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800">معرض مهند الملكي</h2>
             <p class="text-slate-500 mt-2 text-sm">للإلكترونيات والأجهزة المنزلية</p>
         </div>
-        <input type="email" id="authEmail" placeholder="البريد الإلكتروني" class="w-full p-4 mb-4 border rounded-xl bg-slate-50/50 text-left" dir="ltr">
-        <input type="password" id="authPassword" placeholder="كلمة المرور" class="w-full p-4 mb-6 border rounded-xl bg-slate-50/50 text-left" dir="ltr">
-        <button onclick="window.login()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all transform hover:-translate-y-1">تسجيل الدخول</button>
-        <button onclick="window.register()" class="w-full text-slate-500 mt-4 text-sm hover:text-blue-600 transition">إنشاء حساب جديد</button>
+      <input type="password" id="authPassword" placeholder="أدخل رمز الدخول السري" class="w-full p-4 mb-6 border rounded-xl bg-slate-50/50 text-center font-bold text-2xl text-slate-800 tracking-widest" dir="ltr">
+<button onclick="window.checkPin()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-xl font-bold hover:shadow-lg hover:shadow-blue-500/30 transition-all transform hover:-translate-y-1">دخول</button>
     </div>
 </div>
 
@@ -682,7 +680,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+   
 
     // إعدادات فايربيس
     const firebaseConfig = {
@@ -696,7 +694,7 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
+    
 
     // المتغيرات العالمية
     let products = [];
@@ -719,20 +717,39 @@
     };
 
     // التحقق من حالة تسجيل الدخول
-    onAuthStateChanged(auth, user => {
-        if (user) {
+    // ==========================================
+    // نظام تسجيل الدخول بالرمز السري
+    // ==========================================
+    const SYSTEM_PIN = "@11@22@34"; // <-- ضع الرمز السري الذي تريده هنا بدلاً من 12345
+
+    // التحقق التلقائي (حتى لا تضطر لكتابة الرمز عند كل تحديث للصفحة)
+    if(sessionStorage.getItem("isLoggedIn") === "true") {
+        document.getElementById('authScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        startListeners(); // جلب البيانات من قاعدة البيانات
+    }
+
+    // دالة فحص الرمز عند الضغط على زر الدخول
+    window.checkPin = () => {
+        const enteredPin = document.getElementById('authPassword').value;
+        if (enteredPin === SYSTEM_PIN) {
+            sessionStorage.setItem("isLoggedIn", "true"); // حفظ الدخول مؤقتاً
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             startListeners();
         } else {
-            document.getElementById('authScreen').classList.remove('hidden');
-            document.getElementById('mainApp').classList.add('hidden');
+            alert("الرمز السري غير صحيح! يرجى المحاولة مرة أخرى.");
+            document.getElementById('authPassword').value = '';
         }
-    });
+    };
 
-    window.login = () => signInWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPassword').value);
-    window.register = () => createUserWithEmailAndPassword(auth, document.getElementById('authEmail').value, document.getElementById('authPassword').value);
-    window.logout = () => signOut(auth);
+    // دالة تسجيل الخروج
+    window.logout = () => {
+        sessionStorage.removeItem("isLoggedIn");
+        document.getElementById('mainApp').classList.add('hidden');
+        document.getElementById('authScreen').classList.remove('hidden');
+        document.getElementById('authPassword').value = ''; 
+    };
 
     // التبديل بين الأقسام
     window.switchTab = (id) => {
