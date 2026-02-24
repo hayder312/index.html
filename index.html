@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     
     <style>
         /* =========================================
@@ -234,8 +235,8 @@
 <div id="authScreen" class="fixed inset-0 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
     <div class="glass-card p-8 md:p-10 rounded-3xl w-full max-w-[400px] border-t-4 border-blue-600">
         <div class="text-center mb-8">
-            <img src="logo.png" alt="شعار معرض مهند" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-blue-500 shadow-[0_0_15px_rgba(0,210,255,0.5)] object-cover bg-slate-800">
-            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800">معرض مهند الملكي</h2>
+            <img src="logo.png" alt="شعار معرض مهند" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-blue-500 shadow-[0_0_15px_rgba(0,210,255,0.5)] object-cover bg-slate-800" onerror="this.style.display='none'">
+            <h2 class="text-2xl md:text-3xl font-extrabold text-slate-800">معرض مهند</h2>
             <p class="text-slate-500 mt-2 text-sm">للإلكترونيات والأجهزة المنزلية</p>
         </div>
       <input type="password" id="authPassword" placeholder="أدخل رمز الدخول السري" class="w-full p-4 mb-6 border rounded-xl bg-slate-50/50 text-center font-bold text-2xl text-slate-800 tracking-widest" dir="ltr">
@@ -247,7 +248,7 @@
     
     <div class="md:hidden absolute top-0 w-full flex justify-between items-center bg-slate-900/95 backdrop-blur-md p-4 border-b border-slate-700 z-30 h-16 shadow-lg">
         <div class="flex items-center gap-3">
-            <img src="logo.png" alt="شعار" class="w-10 h-10 rounded-full object-cover border border-blue-500">
+            <img src="logo.png" alt="شعار" class="w-10 h-10 rounded-full object-cover border border-blue-500" onerror="this.style.display='none'">
             <h1 class="text-xl font-extrabold text-white text-shadow-sm">معرض مهند</h1>
         </div>
         <button onclick="toggleSidebar()" class="text-white text-2xl p-2 focus:outline-none hover:text-blue-400 transition"><i class="fas fa-bars"></i></button>
@@ -259,7 +260,7 @@
         <div class="p-8 text-center border-b border-slate-700/50 bg-slate-900/50 relative">
             <button onclick="toggleSidebar()" class="md:hidden absolute top-4 left-4 text-slate-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
             
-            <img src="logo.png" alt="شعار معرض مهند" class="w-20 h-20 rounded-2xl mx-auto mb-4 border border-blue-500 shadow-lg shadow-blue-500/30 object-cover bg-slate-800">
+            <img src="logo.png" alt="شعار معرض مهند" class="w-20 h-20 rounded-2xl mx-auto mb-4 border border-blue-500 shadow-lg shadow-blue-500/30 object-cover bg-slate-800" onerror="this.style.display='none'">
             
             <h1 class="text-2xl font-extrabold text-white tracking-wide drop-shadow-[0_0_8px_rgba(0,210,255,0.5)]">معرض مهند</h1>
             <p class="text-xs text-blue-400 mt-1">نظام الإدارة الشامل</p>
@@ -322,7 +323,15 @@
                 </div>
 
                 <div class="flex flex-col md:flex-row justify-between gap-4">
-                    <button onclick="openInventoryModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-transform transform hover:-translate-y-1 w-full md:w-auto"><i class="fas fa-box-open ml-2"></i> إضافة بضاعة جديدة</button>
+                    <div class="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+                        <button onclick="openInventoryModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-transform transform hover:-translate-y-1 w-full md:w-auto"><i class="fas fa-box-open ml-2"></i> إضافة بضاعة جديدة</button>
+                        
+                        <input type="file" id="invoiceScannerFile" accept="image/*" capture="environment" class="hidden" onchange="processInvoiceScan(event)">
+                        <button onclick="document.getElementById('invoiceScannerFile').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-transform transform hover:-translate-y-1 w-full md:w-auto border border-blue-400/50">
+                            <i class="fas fa-camera ml-2"></i> مسح وصل (قراءة ذكية)
+                        </button>
+                    </div>
+
                     <div class="relative w-full md:w-72">
                         <i class="fas fa-search absolute right-3 top-3.5 text-slate-400"></i>
                         <input type="text" id="invSearch" placeholder="بحث في المخزن..." class="pl-3 pr-10 py-3 border border-slate-200 rounded-xl w-full bg-slate-50 focus:bg-white" onkeyup="renderInventory()">
@@ -364,7 +373,7 @@
                             <th class="p-5">تاريخ الوصل</th>
                             <th class="p-5">إجمالي الدين</th>
                             <th class="p-5">الواصل لهم</th>
-                            <th class="p-5">المتبقي بذمتنا</th>
+                            <th class="p-5">المتبقي</th>
                         </tr>
                     </thead>
                     <tbody id="companiesTable" class="divide-y divide-slate-100/10"></tbody>
@@ -380,18 +389,18 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="stat-card-1 p-8 rounded-3xl relative overflow-hidden text-center md:text-right">
-                    <i class="fas fa-boxes-stacked absolute -left-6 -bottom-6 text-9xl text-white op acity-5"></i>
+                    <i class="fas fa-boxes-stacked absolute -left-6 -bottom-6 text-9xl text-white opacity-5"></i>
                     <h3 class="text-blue-100 font-bold mb-3 text-lg relative z-10">إجمالي قيمة المخزن</h3>
                     <p id="statInvTotal" class="text-3xl md:text-4xl font-extrabold relative z-10 drop-shadow-md">0 د.ع</p>
                 </div>
                 <div class="stat-card-2 p-8 rounded-3xl relative overflow-hidden text-center md:text-right">
                     <i class="fas fa-hand-holding-dollar absolute -left-6 -bottom-6 text-9xl text-white opacity-5"></i>
-                    <h3 class="text-rose-100 font-bold mb-3 text-lg relative z-10">ديون الشركات</h3>
+                    <h3 class="text-rose-100 font-bold mb-3 text-lg relative z-10">مطلوبات للشركات (ديون علينا)</h3>
                     <p id="statCompTotal" class="text-3xl md:text-4xl font-extrabold relative z-10 drop-shadow-md">0 د.ع</p>
                 </div>
                 <div class="stat-card-3 p-8 rounded-3xl relative overflow-hidden text-center md:text-right">
                     <i class="fas fa-users absolute -left-6 -bottom-6 text-9xl text-white opacity-5"></i>
-                    <h3 class="text-emerald-100 font-bold mb-3 text-lg relative z-10">ديون عند الزبائن</h3>
+                    <h3 class="text-emerald-100 font-bold mb-3 text-lg relative z-10">مستحقات عند الزبائن (ديون لنا)</h3>
                     <p id="statCustTotal" class="text-3xl md:text-4xl font-extrabold relative z-10 drop-shadow-md">0 د.ع</p>
                 </div>
             </div>
@@ -487,6 +496,43 @@
     </main>
 </div>
 
+<div id="scanReviewModal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md hidden flex items-center justify-center z-[200] p-4 transition-opacity duration-300">
+    <div class="glass-card p-6 md:p-8 rounded-[2rem] w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl border-t-8 border-blue-500">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-4 mb-4">
+            <h3 class="text-xl md:text-2xl font-extrabold text-slate-100 flex items-center gap-2">
+                <i class="fas fa-robot text-blue-500"></i> مراجعة المواد المستخرجة من الوصل
+            </h3>
+            <button onclick="closeModal('scanReviewModal')" class="text-slate-400 hover:text-red-500 text-2xl transition"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <p class="text-sm text-slate-400 mb-4 bg-blue-900/20 p-3 rounded-lg border border-blue-500/20">
+            <i class="fas fa-info-circle text-blue-400 ml-1"></i> يرجى مراجعة الأسماء والأرقام وتصحيحها قبل اعتمادها وإضافتها للمخزن.
+        </p>
+
+        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+            <table class="w-full text-right text-sm">
+                <thead class="bg-slate-800 text-slate-300 sticky top-0">
+                    <tr>
+                        <th class="p-3 w-1/2">اسم المادة</th>
+                        <th class="p-3 w-1/6 text-center">الكمية</th>
+                        <th class="p-3 w-1/4">سعر الجملة</th>
+                        <th class="p-3 text-center">حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="scannedItemsTable" class="divide-y divide-slate-700">
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="mt-6 flex flex-col sm:flex-row gap-3 border-t border-slate-700 pt-4">
+            <button id="confirmScanBtn" onclick="confirmScannedItems()" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-xl font-bold hover:shadow-lg transition-transform transform hover:-translate-y-1">
+                <i class="fas fa-check-circle ml-2"></i> تأكيد وإضافة للمخزن
+            </button>
+            <button onclick="closeModal('scanReviewModal')" class="w-full sm:w-auto bg-slate-800 text-slate-300 p-4 rounded-xl font-bold hover:bg-slate-700 transition">إلغاء العملية</button>
+        </div>
+    </div>
+</div>
+
 <div id="custModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-[150] overflow-y-auto p-2 sm:p-4 transition-opacity duration-300">
     <div class="glass-card rounded-[2rem] w-full max-w-6xl max-h-[95vh] overflow-y-auto shadow-2xl relative border-t-8 border-blue-600 custom-scrollbar">
         <div class="sticky top-0 bg-slate-900/90 backdrop-blur p-4 sm:p-6 border-b border-slate-700 flex justify-between items-center z-20 shadow-sm">
@@ -562,7 +608,7 @@
 
                 <div class="p-4 sm:p-6 bg-slate-900/30 rounded-2xl border border-slate-700/50 shadow-sm relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500" style="background:var(--neon-blue)"></div>
-                    <h4 class="font-extrabold text-slate-100 mb-4 text-lg"><i class="fas fa-user-shield text-emerald-400 ml-2"></i> بيانات الكفيل (الضامن)</h4>
+                    <h4 class="font-extrabold text-slate-100 mb-4 text-lg"><i class="fas fa-user-shield text-emerald-400 ml-2"></i>بيانات الكفيل</h4>
                     <div class="space-y-4">
                         <div>
                             <input type="text" id="gkName" placeholder="اسم الكفيل الثلاثي" class="w-full p-3 border rounded-xl">
@@ -623,20 +669,20 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="text-sm font-bold text-slate-400 block mb-2">الكمية/العدد</label>
+                    <label class="text-sm font-bold text-slate-400 block mb-2">العدد</label>
                     <input type="number" id="iQty" class="w-full p-3 border rounded-xl text-center font-bold text-lg">
                 </div>
                 <div>
-                    <label class="text-sm font-bold text-slate-400 block mb-2">سعر الجملة (عليك)</label>
+                    <label class="text-sm font-bold text-slate-400 block mb-2">سعر الجملة</label>
                     <input type="number" id="iWholesale" class="w-full p-3 border rounded-xl">
                 </div>
             </div>
             <div>
-                <label class="text-sm font-bold text-slate-400 block mb-2">سعر البيع المقترح</label>
+                <label class="text-sm font-bold text-slate-400 block mb-2">سعر البيع</label>
                 <input type="number" id="iSell" class="w-full p-3 border border-emerald-500/50 rounded-xl bg-emerald-900/10 text-emerald-400 font-bold text-lg">
             </div>
             <div>
-                <label class="text-sm font-bold text-slate-400 block mb-2">ملاحظات / مواصفات</label>
+                <label class="text-sm font-bold text-slate-400 block mb-2">ملاحظات</label>
                 <textarea id="iNotes" class="w-full p-3 border rounded-xl h-20 resize-none"></textarea>
             </div>
         </div>
@@ -681,8 +727,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, writeBatch, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
    
-
-    // إعدادات فايربيس
     const firebaseConfig = {
       apiKey: "AIzaSyB1e-lTs-hXrKq7uAkhTj_azp8CdmrwO8w",
       authDomain: "gggg-44b14.firebaseapp.com",
@@ -695,8 +739,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     
-
-    // المتغيرات العالمية
     let products = [];
     let customers = [];
     let companies = [];
@@ -708,7 +750,6 @@
     let currentCustomerImage = "";
     let currentGuarantorImage = "";
 
-    // التحكم بالقائمة الجانبية في الهاتف
     window.toggleSidebar = () => {
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebarOverlay');
@@ -716,24 +757,18 @@
         overlay.classList.toggle('active');
     };
 
-    // التحقق من حالة تسجيل الدخول
-    // ==========================================
-    // نظام تسجيل الدخول بالرمز السري
-    // ==========================================
-    const SYSTEM_PIN = "@11@22@34"; // <-- ضع الرمز السري الذي تريده هنا بدلاً من 12345
+    const SYSTEM_PIN = "@11@22@34";
 
-    // التحقق التلقائي (حتى لا تضطر لكتابة الرمز عند كل تحديث للصفحة)
     if(sessionStorage.getItem("isLoggedIn") === "true") {
         document.getElementById('authScreen').classList.add('hidden');
         document.getElementById('mainApp').classList.remove('hidden');
-        startListeners(); // جلب البيانات من قاعدة البيانات
+        startListeners(); 
     }
 
-    // دالة فحص الرمز عند الضغط على زر الدخول
     window.checkPin = () => {
         const enteredPin = document.getElementById('authPassword').value;
         if (enteredPin === SYSTEM_PIN) {
-            sessionStorage.setItem("isLoggedIn", "true"); // حفظ الدخول مؤقتاً
+            sessionStorage.setItem("isLoggedIn", "true"); 
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('mainApp').classList.remove('hidden');
             startListeners();
@@ -743,7 +778,6 @@
         }
     };
 
-    // دالة تسجيل الخروج
     window.logout = () => {
         sessionStorage.removeItem("isLoggedIn");
         document.getElementById('mainApp').classList.add('hidden');
@@ -751,20 +785,17 @@
         document.getElementById('authPassword').value = ''; 
     };
 
-    // التبديل بين الأقسام
     window.switchTab = (id) => {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(id).classList.add('active');
         document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
         event.currentTarget.classList.add('active');
         
-        // إغلاق القائمة في الهاتف بعد الضغط
         if(window.innerWidth < 768) {
             toggleSidebar();
         }
     };
 
-    // بدء مستمعي قاعدة البيانات
     function startListeners() {
         onSnapshot(collection(db, 'inventory'), snap => {
             products = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -792,7 +823,6 @@
         });
     }
 
-    // معاينة الصور
     window.previewBase64 = (input, imgId) => {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -808,7 +838,6 @@
         }
     };
 
-    // فلترة وعرض المخزن
     window.filterInventory = (cat) => {
         currentCategory = cat;
         document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
@@ -897,7 +926,150 @@
         `).join('');
     }
 
-    // إدارة الزبائن
+    // ==========================================
+    // إضافة نظام المسح الضوئي (OCR) للوصولات
+    // ==========================================
+    let tempScannedItems = [];
+
+    window.processInvoiceScan = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // فتح نافذة المراجعة وعرض حالة التحميل
+        document.getElementById('scanReviewModal').classList.remove('hidden');
+        const tbody = document.getElementById('scannedItemsTable');
+        document.getElementById('confirmScanBtn').classList.add('hidden');
+        
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center p-10">
+                    <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+                    <p class="text-lg font-bold text-white">جاري تحليل الوصل بالذكاء الاصطناعي...</p>
+                    <p class="text-sm text-slate-400">قد تستغرق العملية ثواني معدودة</p>
+                </td>
+            </tr>
+        `;
+
+        Tesseract.recognize(
+            file,
+            'ara+eng', // اللغة العربية والانجليزية (للأرقام)
+            { logger: m => console.log(m) }
+        ).then(({ data: { text } }) => {
+            parseInvoiceText(text);
+        }).catch(err => {
+            alert('عذراً، حدث خطأ أثناء قراءة الصورة. تأكد من وضوح الصورة.');
+            closeModal('scanReviewModal');
+        });
+
+        event.target.value = ''; // تصفير الملف
+    };
+
+    function parseInvoiceText(text) {
+        tempScannedItems = [];
+        // تقسيم النص الى اسطر وتنظيفها
+        const lines = text.split('\n').filter(line => line.trim().length > 2);
+        
+        lines.forEach(line => {
+            let cleanLine = line.trim();
+            let numbers = cleanLine.match(/\d+/g);
+            // ابقاء الحروف العربية والانجليزية للاسم
+            let namePart = cleanLine.replace(/\d+/g, '').replace(/[^\u0600-\u06FFa-zA-Z\s]/g, '').trim(); 
+            
+            // اذا كان السطر يحتوي على اسم مادة منطقي
+            if (namePart.length > 2 && !namePart.includes("رقم") && !namePart.includes("تاريخ") && !namePart.includes("مجموع")) {
+                let qty = 1;
+                let price = 0;
+                
+                if (numbers && numbers.length > 0) {
+                    let numValues = numbers.map(Number);
+                    // غالباً الكمية تكون الرقم الأصغر، والسعر هو الرقم الأكبر
+                    qty = Math.min(...numValues) < 50 ? Math.min(...numValues) : 1; 
+                    price = Math.max(...numValues);
+                }
+
+                tempScannedItems.push({
+                    name: namePart,
+                    qty: qty,
+                    price: price
+                });
+            }
+        });
+
+        if (tempScannedItems.length === 0) {
+            tempScannedItems.push({ name: 'عذراً، لم أتمكن من قراءة الخط بوضوح، أضف يدوياً', qty: 1, price: 0 });
+        }
+
+        renderScannedItems();
+    }
+
+    window.renderScannedItems = () => {
+        const tbody = document.getElementById('scannedItemsTable');
+        document.getElementById('confirmScanBtn').classList.remove('hidden');
+        
+        tbody.innerHTML = tempScannedItems.map((item, index) => `
+            <tr class="border-b border-slate-700 bg-slate-800/50 hover:bg-slate-700/50 transition">
+                <td class="p-2">
+                    <input type="text" value="${item.name}" id="scan_name_${index}" class="w-full p-2 rounded-lg bg-slate-900 border border-slate-600 text-white font-bold">
+                </td>
+                <td class="p-2">
+                    <input type="number" value="${item.qty}" id="scan_qty_${index}" class="w-full p-2 rounded-lg bg-slate-900 border border-slate-600 text-center text-blue-400 font-bold">
+                </td>
+                <td class="p-2">
+                    <input type="number" value="${item.price}" id="scan_price_${index}" class="w-full p-2 rounded-lg bg-slate-900 border border-slate-600 text-emerald-400 font-bold">
+                </td>
+                <td class="p-2 text-center">
+                    <button onclick="removeScannedItem(${index})" class="text-red-500 hover:text-red-400 hover:bg-red-900/30 w-8 h-8 rounded-full transition"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
+    };
+
+    window.removeScannedItem = (index) => {
+        tempScannedItems.splice(index, 1);
+        renderScannedItems();
+    };
+
+    window.confirmScannedItems = async () => {
+        const btn = document.getElementById('confirmScanBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الحفظ...';
+        btn.disabled = true;
+
+        const batch = writeBatch(db);
+        let addedCount = 0;
+        
+        for (let i = 0; i < tempScannedItems.length; i++) {
+            const nameEl = document.getElementById(`scan_name_${i}`);
+            const qtyEl = document.getElementById(`scan_qty_${i}`);
+            const priceEl = document.getElementById(`scan_price_${i}`);
+            
+            if (nameEl && nameEl.value.trim() !== '' && nameEl.value.trim() !== 'عذراً، لم أتمكن من قراءة الخط بوضوح، أضف يدوياً') {
+                const newRef = doc(collection(db, 'inventory'));
+                batch.set(newRef, {
+                    category: currentCategory || 'مبايلات', // اضافتها للتصنيف المفتوح حالياً
+                    name: nameEl.value.trim(),
+                    qty: parseInt(qtyEl.value) || 1,
+                    wholesale: parseFloat(priceEl.value) || 0,
+                    sell: 0,
+                    notes: 'تمت الإضافة عبر المسح الضوئي'
+                });
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0) {
+            await batch.commit();
+            alert(`تمت إضافة ${addedCount} مواد إلى المخزن بنجاح!`);
+        } else {
+            alert('لم يتم إضافة أي مواد!');
+        }
+
+        closeModal('scanReviewModal');
+        btn.innerHTML = '<i class="fas fa-check-circle ml-2"></i> تأكيد وإضافة للمخزن';
+        btn.disabled = false;
+    };
+    // ==========================================
+
+
     window.openCustomerModal = (id = null, isReadOnly = false) => {
         editCustId = id;
         const modal = document.getElementById('custModal');
@@ -988,7 +1160,6 @@
         const disabledAttr = isReadOnly ? "disabled" : "";
         const hideBtn = isReadOnly ? "hidden" : "";
 
-        // أضفنا onkeyup و onchange لتحديث المتبقي عند كتابة القسط
         div.innerHTML = `
             <input type="number" placeholder="المبلغ" value="${val}" class="w-1/3 p-2 text-sm border-none rounded ins-val font-bold text-blue-400" onkeyup="calcRemaining()" onchange="calcRemaining()" ${disabledAttr}>
             <input type="date" value="${date}" class="w-1/3 p-2 text-sm border-none rounded ins-date text-slate-300" ${disabledAttr}>
@@ -996,22 +1167,19 @@
             <button onclick="this.parentElement.remove(); calcRemaining();" class="text-red-400 hover:text-red-500 hover:bg-red-900/30 w-8 h-8 flex items-center justify-center rounded transition ${hideBtn}"><i class="fas fa-trash-alt text-sm"></i></button>
         `;
         container.appendChild(div);
-        calcRemaining(); // تحديث المجموع عند إضافة سطر جديد
+        calcRemaining(); 
     };
 
-    // الدالة المعدلة لحساب المبلغ المتبقي بناءً على الدفعة المقدمة + الأقساط
     window.calcRemaining = () => {
         const total = parseFloat(document.getElementById('cTotal').value) || 0;
         const paid = parseFloat(document.getElementById('cPaid').value) || 0;
         
-        // حساب إجمالي الأقساط المضافة
         let installmentsTotal = 0;
         const instInputs = document.querySelectorAll('.ins-val');
         instInputs.forEach(input => {
             installmentsTotal += parseFloat(input.value) || 0;
         });
 
-        // طرح (المقدمة + الأقساط) من المبلغ الكلي
         document.getElementById('cRem').value = total - (paid + installmentsTotal);
     };
 
@@ -1128,7 +1296,6 @@
         `).join('');
     }
 
-    // إدارة الشركات
     window.openCompanyModal = () => document.getElementById('compModal').classList.remove('hidden');
     
     window.saveCompany = async () => {
@@ -1157,7 +1324,6 @@
         `).join('');
     }
 
-    // المبيعات المباشرة (POS)
     window.addPosSale = async () => {
         const itemNameInput = document.getElementById('posItemName').value;
         const price = parseFloat(document.getElementById('posSalePrice').value);
@@ -1223,7 +1389,6 @@
         monthlyTotalElem.innerText = monthlyTotal.toLocaleString();
     }
 
-    // وظائف إضافية ومساعدة
     function updateDropdowns() {
         const invOptions = products.filter(p => p.qty > 0).map(p => `<option value="${p.name}">`).join('');
         document.getElementById('inventoryItemsList').innerHTML = invOptions;
@@ -1260,92 +1425,179 @@
     };
 
     window.printCustomerReceipt = () => {
-        const name = document.getElementById('cName').value;
-        const id = document.getElementById('cID').value;
-        const item = document.getElementById('cItemName').value;
-        const total = document.getElementById('cTotal').value || 0;
-        const paid = document.getElementById('cPaid').value || 0;
-        const rem = document.getElementById('cRem').value || 0;
-        const date = new Date().toLocaleDateString('ar-IQ');
+        const name = document.getElementById('cName').value || 'غير محدد';
+        const item = document.getElementById('cItemName').value || 'غير محدد';
+        const remAmount = parseFloat(document.getElementById('cRem').value) || 0;
+        
+        let latestPaid = 0;
+        const instInputs = document.querySelectorAll('.ins-val');
+        if (instInputs.length > 0) {
+            for (let i = instInputs.length - 1; i >= 0; i--) {
+                let val = parseFloat(instInputs[i].value);
+                if (!isNaN(val) && val > 0) {
+                    latestPaid = val;
+                    break;
+                }
+            }
+        }
+        if (latestPaid === 0) {
+            latestPaid = parseFloat(document.getElementById('cPaid').value) || 0;
+        }
 
-        if (!name) { alert("لا توجد بيانات لطباعتها، يرجى ملء حقل اسم الزبون أولاً."); return; }
+        const totalAmount = remAmount + latestPaid;
+        const now = new Date();
+        const date = now.toLocaleDateString('ar-IQ');
+        const time = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-        const printWindow = window.open('', '', 'width=800,height=600');
+        const printWindow = window.open('', '', 'width=400,height=600');
         printWindow.document.write(`
             <html dir="rtl" lang="ar">
             <head>
                 <title>وصل قبض - ${name}</title>
                 <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; text-align: right; color: #1e293b; background: #fff; }
-                    .print-container { border: 2px solid #cbd5e1; padding: 30px; border-radius: 15px; position: relative; }
-                    .header { text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 15px; margin-bottom: 30px; }
-                    .header h1 { margin: 0; color: #1e3a8a; font-size: 28px; font-weight: bold; }
-                    .header p { color: #64748b; margin-top: 5px; font-weight: bold; }
-                    .date { position: absolute; left: 30px; top: 40px; font-weight: bold; }
-                    .details-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 16px; }
-                    .details-table th, .details-table td { border: 1px solid #e2e8f0; padding: 15px; text-align: right; }
-                    .details-table th { background-color: #f8fafc; font-weight: bold; color: #334155; width: 35%; }
-                    .total-box { margin-top: 30px; background-color: #f1f5f9; border: 2px dashed #94a3b8; border-radius: 10px; padding: 20px; display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2em; }
-                    .total-box div:last-child { color: #dc2626; }
-                    .notes-box { margin-top: 25px; background: #f8fafc; padding: 15px; border-right: 4px solid #3b82f6; border-radius: 5px; }
-                    .footer { margin-top: 60px; display: flex; justify-content: space-between; padding: 0 40px; }
-                    .sign { border-top: 2px solid #475569; padding-top: 10px; width: 200px; text-align: center; font-weight: bold; color: #475569; }
-                    @media print {
-                        body { -webkit-print-color-adjust: exact; }
-                        button { display: none; }
+                    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap');
+                    @page { margin: 0; size: 80mm auto; }
+                    body { 
+                        font-family: 'Cairo', sans-serif; 
+                        width: 74mm; 
+                        margin: 0 auto; 
+                        padding: 5mm; 
+                        color: #000;
+                    }
+                    .text-center { text-align: center; }
+                    .dashed-line { border-top: 1px dashed #000; margin: 10px 0; }
+                    .solid-line { border-top: 2px solid #000; margin: 5px 0 15px 0; }
+                    
+                    .info-row {
+                        display: flex;
+                        align-items: center;
+                        margin-bottom: 8px;
+                        font-size: 15px;
+                    }
+                    .label {
+                        width: 85px; 
+                        text-align: right;
+                        font-weight: 700;
+                        white-space: nowrap;
+                    }
+                    .value {
+                        flex-grow: 1;
+                        text-align: center; 
+                        font-weight: 800;
+                        font-size: 16px;
+                    }
+                    .tafqeet {
+                        text-align: center;
+                        width: 100%;
+                        margin-top: 10px;
+                        font-size: 13px;
+                        font-weight: 700;
                     }
                 </style>
             </head>
             <body>
-                <div class="print-container">
-                    <div class="date">التاريخ: ${date}</div>
-                    <div class="header">
-                        <h1>معرض مهند التجاري</h1>
-                        <p>للإلكترونيات، الأجهزة المنزلية، والموبايلات</p>
-                    </div>
-
-                    <h2 style="text-align:center; color: #334155; margin-bottom: 30px;">وصل استلام نقدية / كشف حساب</h2>
-                    
-                    <table class="details-table">
-                        <tr>
-                            <th>الاسم الثلاثي للزبون</th>
-                            <td><strong>${name}</strong></td>
-                        </tr>
-                        <tr>
-                            <th>رقم القائمة / الدفتر</th>
-                            <td>${id || '---'}</td>
-                        </tr>
-                        <tr>
-                            <th>المادة المشتراة</th>
-                            <td>${item || '---'}</td>
-                        </tr>
-                    </table>
-
-                    <div class="total-box">
-                        <div>السعر الكلي: ${Number(total).toLocaleString()} د.ع</div>
-                        <div>الواصل نقداً + الأقساط: ${Number(total - rem).toLocaleString()} د.ع</div>
-                        <div>المتبقي بذمته: ${Number(rem).toLocaleString()} د.ع</div>
-                    </div>
-
-                    <div class="notes-box">
-                        <strong style="color: #2563eb;">ملاحظات هامة:</strong>
-                        <p style="margin-top: 10px; color: #475569;">${document.getElementById('cNotes').value || 'لا توجد ملاحظات إضافية مسجلة في النظام.'}</p>
-                    </div>
-
-                    <div class="footer">
-                        <div class="sign">توقيع الزبون</div>
-                        <div class="sign">توقيع إدارة المعرض</div>
-                    </div>
+                <div class="text-center">
+                    <strong style="font-size: 18px;">معرض مهند التجاري</strong><br>
+                    <span style="font-size: 11px;">للاجهزة الكهربائية والموبايلات</span><br>
+                    <span style="font-size: 11px;">كركوك - تازة - قرب اطفائية القديمة</span><br>
+                    <span style="font-size: 12px; direction: ltr; display: block;">07702362911</span>
+                    <span style="font-size: 12px; direction: ltr; display: block;">07705957430</span>
                 </div>
+
+                <div class="dashed-line"></div>
+                <div class="text-center" style="font-size: 19px; font-weight: 800;">وصـل قـبـض</div>
+                <div class="solid-line"></div>
+
+                <div class="info-row">
+                    <span class="label">الاسم :</span>
+                    <span class="value">${name}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">المادة :</span>
+                    <span class="value">${item}</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">المبلغ :</span>
+                    <span class="value">${totalAmount.toLocaleString()} د.ع</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">مبلغ الواصل :</span>
+                    <span class="value">${latestPaid.toLocaleString()} د.ع</span>
+                </div>
+                <div class="info-row">
+                    <span class="label">المتبقي :</span>
+                    <span class="value">${remAmount.toLocaleString()} د.ع</span>
+                </div>
+                
+                <div id="wordText" class="tafqeet"></div>
+
+                <div class="dashed-line" style="margin-top: 20px;"></div>
+                
+                <div style="display: flex; justify-content: space-between; font-size: 11px;">
+                    <span>التاريخ: ${date}</span>
+                    <span>الوقت: ${time}</span>
+                </div>
+
+                <div class="text-center" style="margin-top: 25px;">
+                    <p style="font-size: 14px;">توقيع الزبون: .....................</p>
+                    <p style="font-size: 10px;">شكراً لزيارتكم</p>
+                </div>
+
                 <script>
-                    window.onload = function() { window.print(); }
+                    function tafqeet(num) {
+                        if (!num || num === 0) return '';
+                        const a = ['','واحد','اثنان','ثلاثة','أربعة','خمسة','ستة','سبعة','ثمانية','تسعة','عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+                        const b = ['','','عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+                        const c = ['','مائة','مائتان','ثلاثمائة','أربعمائة','خمسمائة','ستمائة','سبعمائة','ثمانمائة','تسعمائة'];
+                        
+                        function convertHund(n) {
+                            let res = '';
+                            let h = Math.floor(n / 100);
+                            let rem = n % 100;
+                            if (h > 0) res += c[h];
+                            if (rem > 0) {
+                                if (res !== '') res += ' و ';
+                                if (rem < 20) res += a[rem];
+                                else {
+                                    let t = Math.floor(rem / 10);
+                                    let o = rem % 10;
+                                    if (o > 0) res += (a[o] ? a[o] + ' و ' : '') + b[t];
+                                    else res += b[t];
+                                }
+                            }
+                            return res;
+                        }
+
+                        let millions = Math.floor((num % 1000000000) / 1000000);
+                        let thousands = Math.floor((num % 1000000) / 1000);
+                        let remainder = num % 1000;
+
+                        let parts = [];
+                        if (millions > 0) parts.push(convertHund(millions) + ' مليون');
+                        if (thousands > 0) {
+                            if (thousands === 1) parts.push('ألف');
+                            else if (thousands === 2) parts.push('ألفان');
+                            else parts.push(convertHund(thousands) + ' ألف');
+                        }
+                        if (remainder > 0) parts.push(convertHund(remainder));
+
+                        return 'فقط ' + parts.join(' و ') + ' دينار لا غير';
+                    }
+
+                    const remValue = ${remAmount};
+                    if(remValue > 0) {
+                        document.getElementById('wordText').innerText = tafqeet(remValue);
+                    }
+
+                    window.onload = function() { 
+                        setTimeout(() => { window.print(); window.close(); }, 500);
+                    }
                 <\/script>
             </body>
             </html>
         `);
         printWindow.document.close();
     };
-
 </script>
 </body>
 </html>
